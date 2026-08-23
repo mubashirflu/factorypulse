@@ -1,0 +1,8 @@
+CREATE TABLE machines (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'STOPPED',
+    location VARCHAR(150),
+    created_at TIMESTAMP DEFAULT NOW()
+);

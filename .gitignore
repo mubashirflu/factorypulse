@@ -1,0 +1,6 @@
+.env
+backend/.env
+node_modules/
+frontend/factorypulse/node_modules/
+frontend/factorypulse/dist/
+*.exe
