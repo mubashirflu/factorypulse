@@ -3,6 +3,7 @@
 // import (
 // 	"net/http"
 
+// 	// "factorypulse/backend/internal/alerts"
 // 	alerts "factorypulse/backend/internal/alert"
 // 	"factorypulse/backend/internal/analytics"
 // 	"factorypulse/backend/internal/auth"
@@ -10,6 +11,7 @@
 // 	"factorypulse/backend/internal/maintenance"
 // 	"factorypulse/backend/internal/middleware"
 // 	"factorypulse/backend/internal/sensors"
+// 	"factorypulse/backend/internal/ws"
 
 // 	"github.com/gin-gonic/gin"
 // )
@@ -31,19 +33,26 @@
 // 			c.JSON(http.StatusOK, gin.H{"user_id": userID, "role": role})
 // 		})
 
-// 		protected.POST("/machines", machines.CreateMachineHandler)
 // 		protected.GET("/machines", machines.GetAllMachinesHandler)
 // 		protected.GET("/machines/:id", machines.GetMachineHandler)
+// 		protected.POST("/machines", middleware.RoleRequired("admin"), machines.CreateMachineHandler)
 
-// 		protected.POST("/readings", sensors.CreateReadingHandler)
 // 		protected.GET("/machines/:id/latest-reading", sensors.GetLatestReadingHandler)
 // 		protected.GET("/machines/:id/history", sensors.GetReadingHistoryHandler)
-// 		protected.GET("/alerts", alerts.GetActiveAlertsHandler)
-// 		protected.POST("/maintenance", maintenance.CreateJobHandler)
+// 		protected.POST("/readings", sensors.CreateReadingHandler)
+
+// 		// protected.GET("/alerts", alerts.GetActiveAlertsHandler)
+
 // 		protected.GET("/maintenance", maintenance.GetAllJobsHandler)
+// 		protected.POST("/maintenance", middleware.RoleRequired("admin", "engineer"), maintenance.CreateJobHandler)
 // 		protected.PATCH("/maintenance/:id/status", maintenance.UpdateStatusHandler)
 // 		protected.PATCH("/maintenance/:id/assign", maintenance.AssignJobHandler)
-// 		protected.GET("/analytics", analytics.GetAnalyticsHandler)
+
+// 		protected.GET("/analytics", middleware.RoleRequired("admin", "production_manager"), analytics.GetAnalyticsHandler)
+// 		r.GET("/ws", ws.WebSocketHandler)
+// 		protected.GET("/alerts", alerts.GetActiveAlertsHandler)
+// 		protected.GET("/alerts/all", alerts.GetAllAlertsHandler)
+// 		protected.PATCH("/alerts/:id/resolve", alerts.ResolveAlertHandler)
 // 	}
 // }
 
@@ -52,7 +61,6 @@ package routes
 import (
 	"net/http"
 
-	// "factorypulse/backend/internal/alerts"
 	alerts "factorypulse/backend/internal/alert"
 	"factorypulse/backend/internal/analytics"
 	"factorypulse/backend/internal/auth"
@@ -60,6 +68,7 @@ import (
 	"factorypulse/backend/internal/maintenance"
 	"factorypulse/backend/internal/middleware"
 	"factorypulse/backend/internal/sensors"
+	"factorypulse/backend/internal/ws"
 
 	"github.com/gin-gonic/gin"
 )
@@ -68,6 +77,8 @@ func Setup(r *gin.Engine) {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
+
+	r.GET("/ws", ws.WebSocketHandler)
 
 	r.POST("/api/auth/register", auth.RegisterHandler)
 	r.POST("/api/auth/login", auth.LoginHandler)
@@ -90,6 +101,8 @@ func Setup(r *gin.Engine) {
 		protected.POST("/readings", sensors.CreateReadingHandler)
 
 		protected.GET("/alerts", alerts.GetActiveAlertsHandler)
+		protected.GET("/alerts/all", alerts.GetAllAlertsHandler)
+		protected.PATCH("/alerts/:id/resolve", alerts.ResolveAlertHandler)
 
 		protected.GET("/maintenance", maintenance.GetAllJobsHandler)
 		protected.POST("/maintenance", middleware.RoleRequired("admin", "engineer"), maintenance.CreateJobHandler)

@@ -48,6 +48,12 @@ const router = createRouter({
   component: () => import('@/view/Analytics.vue'),
   meta: { requiresAuth: true },
 },
+{
+  path: '/alerts',
+  name: 'alerts',
+  component: () => import('@/view/Alert.vue'),
+  meta: { requiresAuth: true },
+},
   ],
 })
 

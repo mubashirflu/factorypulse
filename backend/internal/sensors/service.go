@@ -2,8 +2,16 @@
 
 // import (
 // 	"context"
+// 	"fmt"
 
+// 	alerts "factorypulse/backend/internal/alert"
 // 	"factorypulse/backend/internal/database"
+// 	"factorypulse/backend/internal/ws"
+// )
+
+// const (
+// 	vibrationWarning  = 5.0
+// 	vibrationCritical = 7.0
 // )
 
 // func CreateReading(input CreateReadingInput) error {
@@ -12,7 +20,49 @@
 
 // 	_, err := database.Pool.Exec(context.Background(), query,
 // 		input.MachineID, input.Temperature, input.Vibration, input.Pressure)
-// 	return err
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	// WebSocket se sab connected clients ko naya data bhejo
+// 	ws.GlobalHub.Broadcast(map[string]interface{}{
+// 		"type":        "reading",
+// 		"machine_id":  input.MachineID,
+// 		"temperature": input.Temperature,
+// 		"vibration":   input.Vibration,
+// 		"pressure":    input.Pressure,
+// 	})
+
+// 	return evaluateThresholds(input)
+// }
+
+// func evaluateThresholds(input CreateReadingInput) error {
+// 	switch {
+// 	case input.Vibration >= vibrationCritical:
+// 		alerts.UpdateMachineStatus(input.MachineID, "CRITICAL")
+// 		return alerts.CreateAlert(
+// 			input.MachineID,
+// 			"CRITICAL",
+// 			fmt.Sprintf("Vibration critically high: %.2f mm/s", input.Vibration),
+// 			input.Vibration,
+// 			vibrationCritical,
+// 		)
+
+// 	case input.Vibration >= vibrationWarning:
+// 		alerts.UpdateMachineStatus(input.MachineID, "WARNING")
+// 		return alerts.CreateAlert(
+// 			input.MachineID,
+// 			"WARNING",
+// 			fmt.Sprintf("Vibration above normal: %.2f mm/s", input.Vibration),
+// 			input.Vibration,
+// 			vibrationWarning,
+// 		)
+
+// 	default:
+// 		alerts.UpdateMachineStatus(input.MachineID, "RUNNING")
+// 	}
+
+// 	return nil
 // }
 
 // func GetLatestReading(machineID int) (SensorReading, error) {
@@ -62,6 +112,7 @@ import (
 
 	alerts "factorypulse/backend/internal/alert"
 	"factorypulse/backend/internal/database"
+	"factorypulse/backend/internal/ws"
 )
 
 const (
@@ -78,6 +129,14 @@ func CreateReading(input CreateReadingInput) error {
 	if err != nil {
 		return err
 	}
+
+	ws.GlobalHub.Broadcast(map[string]interface{}{
+		"type":        "reading",
+		"machine_id":  input.MachineID,
+		"temperature": input.Temperature,
+		"vibration":   input.Vibration,
+		"pressure":    input.Pressure,
+	})
 
 	return evaluateThresholds(input)
 }

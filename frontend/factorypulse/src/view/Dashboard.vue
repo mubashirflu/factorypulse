@@ -31,10 +31,10 @@ const loading = ref(true)
 const navItems = [
   { label: 'Dashboard', icon: '◆', path: '/dashboard' },
   { label: 'Machines', icon: '▣', path: '/machines' },
-  { label: 'Sensors', icon: '◈', path: '/machines' },
+  // { label: 'Sensors', icon: '◈', path: '/machines' },
   { label: 'Maintenance', icon: '✚', path: '/maintenance' },
-  { label: 'Alerts', icon: '▲', path: '/dashboard' },
-  { label: 'Analytics', icon: '▤', path: '/analytics' },
+  { label: 'Alerts', icon: '▲', path: '/alerts' },
+    { label: 'Analytics', icon: '▤', path: '/analytics' },
 ]
 async function fetchData() {
   try {
