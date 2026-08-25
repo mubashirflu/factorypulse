@@ -1,41 +1,66 @@
-services:
-  postgres:
-    image: postgres:16
-    container_name: factorypulse-db
-    environment:
-      POSTGRES_DB: factorypulse
-      POSTGRES_USER: fpuser
-      POSTGRES_PASSWORD: devpass123
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fpuser -d factorypulse"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
-  backend:
-    build: ./backend
-    container_name: factorypulse-backend
-    environment:
-      DATABASE_URL: postgres://fpuser:devpass123@postgres:5432/factorypulse?sslmode=disable
-      JWT_SECRET: yeh-ek-bahut-secret-random-string-hai-badal-dena-123
-      PORT: 8080
-    ports:
-      - "8080:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
+  #     backend:
+  #     build: ./backend
+  #     container_name: factorypulse-backend
+  #     environment:
+  #       DATABASE_URL: postgres://fpuser:devpass123@postgres:5432/factorypulse?sslmode=disable
+  #       JWT_SECRET: yeh-ek-bahut-secret-random-string-hai-badal-dena-123
+  #       PORT: 8080
+  #     ports:
+  #       - "8080:8080"
+  #     depends_on:
+  #       postgres:
+  #         condition: service_healthy
 
-  frontend:
-    build: ./frontend/factorypulse
-    container_name: factorypulse-frontend
-    ports:
-      - "5173:80"
-    depends_on:
-      - backend
+  #   frontend:
+  #     build:
+  #       context: ./frontend/factorypulse
+  #     container_name: factorypulse-frontend
+  #     ports:
+  #       - "5173:80"
+  #     depends_on:
+  #       - backend
 
-volumes:
-  pgdata:
+  # volumes:
+  #   pgdata:
+  services:
+    postgres:
+      image: postgres:16
+      container_name: factorypulse-db
+      environment:
+        POSTGRES_DB: factorypulse
+        POSTGRES_USER: fpuser
+        POSTGRES_PASSWORD: devpass123
+      ports:
+        - "5432:5432"
+      volumes:
+        - pgdata:/var/lib/postgresql/data
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U fpuser -d factorypulse"]
+        interval: 5s
+        timeout: 5s
+        retries: 5
+
+    backend:
+      build: ./backend
+      container_name: factorypulse-backend
+      environment:
+        DATABASE_URL: postgres://fpuser:devpass123@postgres:5432/factorypulse?sslmode=disable
+        JWT_SECRET: yeh-ek-bahut-secret-random-string-hai-badal-dena-123
+        PORT: 8080
+      ports:
+        - "8080:8080"
+      depends_on:
+        postgres:
+          condition: service_healthy
+
+    frontend:
+      build: ./frontend/factorypulse
+      container_name: factorypulse-frontend
+      ports:
+        - "5173:80"
+      depends_on:
+        - backend
+
+  volumes:
+    pgdata:

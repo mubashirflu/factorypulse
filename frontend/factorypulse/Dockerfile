@@ -1,16 +1,23 @@
-FROM node:20-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY go.mod go.sum ./
+RUN go mod download
 
 COPY . .
-RUN npm run build
 
-FROM nginx:alpine
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main .
 
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+FROM alpine:latest
 
-EXPOSE 80
+WORKDIR /app
+
+COPY --from=builder /app/main .
+COPY --from=builder /app/migrations ./migrations
+
+RUN chmod +x main
+
+EXPOSE 8080
+
+CMD ["./main"]

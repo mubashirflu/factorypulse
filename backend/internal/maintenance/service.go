@@ -50,3 +50,12 @@ func AssignJob(jobID int, userID int) error {
 	_, err := database.Pool.Exec(context.Background(), query, userID, jobID)
 	return err
 }
+func CreateAutoJob(machineID int, alertMessage string) error {
+	title := "Auto-generated: " + alertMessage
+	query := `INSERT INTO maintenance_jobs (machine_id, title, description, status, created_by) 
+	          VALUES ($1, $2, $3, 'OPEN', NULL)`
+
+	_, err := database.Pool.Exec(context.Background(), query,
+		machineID, title, "This job was automatically created due to a critical alert.")
+	return err
+}

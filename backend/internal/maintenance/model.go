@@ -10,7 +10,7 @@ type MaintenanceJob struct {
 	Description string    `json:"description"`
 	Status      string    `json:"status"`
 	AssignedTo  *int      `json:"assigned_to"`
-	CreatedBy   int       `json:"created_by"`
+	CreatedBy   *int      `json:"created_by"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

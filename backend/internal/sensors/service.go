@@ -24,7 +24,6 @@
 // 		return err
 // 	}
 
-// 	// WebSocket se sab connected clients ko naya data bhejo
 // 	ws.GlobalHub.Broadcast(map[string]interface{}{
 // 		"type":        "reading",
 // 		"machine_id":  input.MachineID,
@@ -112,6 +111,7 @@ import (
 
 	alerts "factorypulse/backend/internal/alert"
 	"factorypulse/backend/internal/database"
+	"factorypulse/backend/internal/maintenance"
 	"factorypulse/backend/internal/ws"
 )
 
@@ -145,13 +145,20 @@ func evaluateThresholds(input CreateReadingInput) error {
 	switch {
 	case input.Vibration >= vibrationCritical:
 		alerts.UpdateMachineStatus(input.MachineID, "CRITICAL")
-		return alerts.CreateAlert(
-			input.MachineID,
-			"CRITICAL",
-			fmt.Sprintf("Vibration critically high: %.2f mm/s", input.Vibration),
-			input.Vibration,
-			vibrationCritical,
-		)
+
+		message := fmt.Sprintf("Vibration critically high: %.2f mm/s", input.Vibration)
+
+		err := alerts.CreateAlert(input.MachineID, "CRITICAL", message, input.Vibration, vibrationCritical)
+		if err != nil {
+			return err
+		}
+
+		// Automation: CRITICAL alert pe khud hi maintenance job bana do
+		if jobErr := maintenance.CreateAutoJob(input.MachineID, message); jobErr != nil {
+			fmt.Println("⚠️  Failed to auto-create maintenance job:", jobErr)
+		}
+
+		return nil
 
 	case input.Vibration >= vibrationWarning:
 		alerts.UpdateMachineStatus(input.MachineID, "WARNING")

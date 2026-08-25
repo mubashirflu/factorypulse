@@ -57,14 +57,25 @@ async function handleCreate() {
   }
 }
 
+// function statusColor(status: string) {
+//   if (status === 'RUNNING') return 'text-live bg-live/10 border-live/30'
+//   if (status === 'WARNING') return 'text-accent bg-accent/10 border-accent/30'
+//   if (status === 'CRITICAL') return 'text-critical bg-critical/10 border-critical/30'
+//   return 'text-text-muted bg-surface-raised border-border'
+// }
 function statusColor(status: string) {
   if (status === 'RUNNING') return 'text-live bg-live/10 border-live/30'
   if (status === 'WARNING') return 'text-accent bg-accent/10 border-accent/30'
   if (status === 'CRITICAL') return 'text-critical bg-critical/10 border-critical/30'
+  if (status === 'OFFLINE') return 'text-text-muted bg-surface-raised border-text-muted/30'
   return 'text-text-muted bg-surface-raised border-border'
 }
 
-onMounted(fetchMachines)
+// onMounted(fetchMachines)
+onMounted(() => {
+  fetchMachines()
+  setInterval(fetchMachines, 5000)
+})
 </script>
 
 <template>

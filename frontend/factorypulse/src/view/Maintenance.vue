@@ -107,7 +107,11 @@ async function advanceStatus(job: Job) {
   }
 }
 
-onMounted(fetchData)
+// onMounted(fetchData)
+onMounted(() => {
+  fetchData()
+  setInterval(fetchData, 5000)
+})
 </script>
 
 <template>
